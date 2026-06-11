@@ -1,62 +1,57 @@
 package com.example.konwerter3;
 
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
-import com.example.konwerter3.databinding.ActivityMainBinding;
-import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnItemSelectedListener {
 
-    private SharedViewModel sharedViewModel;
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        setContentView(R.layout.activity_main);
 
-        sharedViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setOnItemSelectedListener(this);
 
-        setSupportActionBar(binding.toolbar);
-
-        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(this);
-        binding.viewPager.setAdapter(viewPagerAdapter);
-
-        new TabLayoutMediator(binding.tabLayout, binding.viewPager,
-                (tab, position) -> {
-                    switch (position) {
-                        case 0:
-                            tab.setText("Kalkulator");
-                            break;
-                        case 1:
-                            tab.setText("Wykres");
-                            break;
-                        case 2:
-                            tab.setText("Kursy");
-                            break;
-                    }
-                }).attach();
+        loadFragment(new ConverterFragment());
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.action_refresh) {
-            sharedViewModel.refreshCurrencies();
+    private boolean loadFragment(Fragment fragment) {
+        if (fragment != null) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.fragment_container, fragment);
+            fragmentTransaction.commit();
             return true;
         }
-        return super.onOptionsItemSelected(item);
+        return false;
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        Fragment fragment = null;
+        int itemId = item.getItemId();
+
+        if (itemId == R.id.navigation_converter) {
+            fragment = new ConverterFragment();
+        } else if (itemId == R.id.navigation_chart) {
+            fragment = new ChartFragment();
+        } else if (itemId == R.id.navigation_rates_list) {
+            fragment = new ListFragment();
+        } else if (itemId == R.id.navigation_about) {
+            fragment = new AboutFragment();
+        }
+
+        return loadFragment(fragment);
     }
 }

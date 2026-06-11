@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import com.example.konwerter3.api.NbpApiClient;
+import com.example.konwerter3.model.Currency;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

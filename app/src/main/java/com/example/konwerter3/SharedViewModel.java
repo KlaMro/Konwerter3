@@ -7,7 +7,7 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.konwerter3.model.Currency;
-import com.example.konwerter3.db.CurrencyRepository;
+import com.example.konwerter3.CurrencyRepository;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,7 +24,7 @@ public class SharedViewModel extends AndroidViewModel {
     public SharedViewModel(Application application) {
         super(application);
         repository = new CurrencyRepository(application);
-        allCurrencies = repository.getAllCurrencies();
+        allCurrencies = repository.getCurrencyList();
 
         filteredCurrencies.addSource(allCurrencies, currencies -> filterAndSortList(searchQuery.getValue(), currencies));
         filteredCurrencies.addSource(searchQuery, query -> filterAndSortList(query, allCurrencies.getValue()));
@@ -43,7 +43,7 @@ public class SharedViewModel extends AndroidViewModel {
     }
 
     public void refreshCurrencies() {
-        repository.refreshCurrencies();
+        repository.fetchRates(true);
     }
 
     public void setSearchQuery(String query) {
@@ -51,8 +51,7 @@ public class SharedViewModel extends AndroidViewModel {
     }
 
     public void toggleFavorite(Currency currency) {
-        currency.setFavorite(!currency.isFavorite());
-        repository.updateCurrency(currency);
+        repository.toggleFavorite(currency);
     }
 
     private void filterAndSortList(String query, List<Currency> currencies) {
@@ -66,7 +65,7 @@ public class SharedViewModel extends AndroidViewModel {
         } else {
             String lowerCaseQuery = query.toLowerCase();
             filteredList = currencies.stream()
-                    .filter(c -> c.getCurrencyCode().toLowerCase().contains(lowerCaseQuery) || c.getCurrencyName().toLowerCase().contains(lowerCaseQuery))
+                    .filter(c -> c.getCode().toLowerCase().contains(lowerCaseQuery) || c.getName().toLowerCase().contains(lowerCaseQuery))
                     .collect(Collectors.toList());
         }
 
@@ -77,7 +76,7 @@ public class SharedViewModel extends AndroidViewModel {
             if (!o1.isFavorite() && o2.isFavorite()) {
                 return 1;
             }
-            return o1.getCurrencyCode().compareTo(o2.getCurrencyCode());
+            return o1.getCode().compareTo(o2.getCode());
         });
 
         filteredCurrencies.setValue(filteredList);

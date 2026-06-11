@@ -2,4 +2,8 @@
     <string name="app_name">Konwerter3</string>
     <string name="search_hint">Szukaj waluty</string>
     <string name="action_refresh">Odśwież</string>
+    <string name="title_converter">Konwerter</string>
+    <string name="title_chart">Wykres</string>
+    <string name="title_rates_list">Lista kursów</string>
+    <string name="title_about">O aplikacji</string>
 </resources>

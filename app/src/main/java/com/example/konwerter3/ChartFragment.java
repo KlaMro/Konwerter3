@@ -1,13 +1,19 @@
 package com.example.konwerter3;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -19,6 +25,9 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -49,11 +58,15 @@ public class ChartFragment extends Fragment {
         sharedViewModel.getSelectedCurrency().observe(getViewLifecycleOwner(), currency -> {
             if (currency != null) {
                 updateChart(currency);
+                binding.fabShare.setVisibility(View.VISIBLE);
             } else {
                 binding.lineChart.clear();
                 binding.lineChart.invalidate();
+                binding.fabShare.setVisibility(View.GONE);
             }
         });
+
+        binding.fabShare.setOnClickListener(v -> shareChart());
     }
 
     private void setupChart() {
@@ -107,5 +120,40 @@ public class ChartFragment extends Fragment {
         }
         Collections.reverse(dates);
         return dates;
+    }
+
+    private void shareChart() {
+        Bitmap chartBitmap = getChartBitmap(binding.lineChart);
+        if (chartBitmap != null) {
+            try {
+                File cachePath = new File(requireContext().getCacheDir(), "images");
+                cachePath.mkdirs();
+                FileOutputStream stream = new FileOutputStream(cachePath + "/chart.png");
+                chartBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                stream.close();
+
+                File imagePath = new File(requireContext().getCacheDir(), "images");
+                File newFile = new File(imagePath, "chart.png");
+                Uri contentUri = FileProvider.getUriForFile(requireContext(), "com.example.konwerter3.fileprovider", newFile);
+
+                if (contentUri != null) {
+                    Intent shareIntent = new Intent();
+                    shareIntent.setAction(Intent.ACTION_SEND);
+                    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    shareIntent.setDataAndType(contentUri, requireContext().getContentResolver().getType(contentUri));
+                    shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+                    startActivity(Intent.createChooser(shareIntent, "Udostępnij wykres"));
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private Bitmap getChartBitmap(View view) {
+        Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        view.draw(canvas);
+        return bitmap;
     }
 }
