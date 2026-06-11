@@ -1,9 +1,11 @@
-package com.example.konwerter3;
+package com.example.konwerter3.api;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.util.Log;
+
+import com.example.konwerter3.DatabaseHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,7 +42,6 @@ public class NbpApiClient {
         new FetchCurrencyHistoryTask(dbHelper, listener, "A", currencyCode, startDate, endDate).execute();
     }
 
-    // Task for fetching a full table of rates
     private static class FetchRatesTask extends AsyncTask<String, Void, String> {
         private NbpApiListener listener;
         private DatabaseHelper dbHelper;
@@ -106,7 +107,6 @@ public class NbpApiClient {
         }
     }
 
-    // Task for fetching historical rates for a single currency in a date range
     private static class FetchCurrencyHistoryTask extends AsyncTask<String, Void, String> {
         private NbpHistoryListener listener;
         private String table;
@@ -179,7 +179,6 @@ public class NbpApiClient {
         }
     }
 
-    // Utility method for network calls
     private static String makeApiCall(String urlString) {
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;

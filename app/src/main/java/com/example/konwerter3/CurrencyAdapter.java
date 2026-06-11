@@ -1,6 +1,5 @@
 package com.example.konwerter3;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,37 +9,43 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.konwerter3.model.Currency;
+
+import java.util.Collections;
 import java.util.List;
 
 public class CurrencyAdapter extends RecyclerView.Adapter<CurrencyAdapter.ViewHolder> {
 
-    private List<Currency> currencies;
-    private LayoutInflater inflater;
-    private FavoriteClickListener listener;
+    private List<Currency> currencies = Collections.emptyList();
+    private OnItemClickListener listener;
 
-    public interface FavoriteClickListener {
+    public interface OnItemClickListener {
         void onFavoriteClick(Currency currency);
+        void onItemClick(Currency currency);
     }
 
-    public CurrencyAdapter(Context context, List<Currency> currencies, FavoriteClickListener listener) {
-        this.inflater = LayoutInflater.from(context);
-        this.currencies = currencies;
+    public CurrencyAdapter(OnItemClickListener listener) {
         this.listener = listener;
+    }
+
+    public void setCurrencies(List<Currency> currencies) {
+        this.currencies = currencies;
+        notifyDataSetChanged();
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = inflater.inflate(R.layout.list_item_currency, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_currency, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Currency currency = currencies.get(position);
-        holder.code.setText(currency.getCode());
-        holder.name.setText(currency.getName());
-        holder.rate.setText(String.format("1 %s = %.4f PLN", currency.getCode(), currency.getMid()));
+        holder.code.setText(currency.getCurrencyCode());
+        holder.name.setText(currency.getCurrencyName());
+        holder.rate.setText(String.format("%.4f", currency.getExchangeRate()));
 
         if (currency.isFavorite()) {
             holder.star.setImageResource(R.drawable.ic_star_filled);
@@ -53,16 +58,17 @@ public class CurrencyAdapter extends RecyclerView.Adapter<CurrencyAdapter.ViewHo
                 listener.onFavoriteClick(currency);
             }
         });
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemClick(currency);
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
         return currencies.size();
-    }
-
-    public void updateData(List<Currency> newCurrencies) {
-        this.currencies = newCurrencies;
-        notifyDataSetChanged(); // For simplicity. For performance, use DiffUtil.
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

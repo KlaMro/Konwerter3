@@ -1,11 +1,5 @@
-
 <resources>
     <string name="app_name">Konwerter3</string>
-    <string name="action_currency_converter">Currency Converter</string>
-    <string name="action_data_analysis">Data Analysis</string>
-    <string name="action_import_data">Import Data</string>
-
-    <string name="offline_mode_toast">No internet connection. Displaying last saved data from %s.</string>
-    <string name="no_data_in_db_toast">No data in local database. Please connect to the internet to download rates.</string>
-    <string name="api_error_toast">API Error. Displaying last saved data from %s.</string>
+    <string name="search_hint">Szukaj waluty</string>
+    <string name="action_refresh">Odśwież</string>
 </resources>
