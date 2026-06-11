@@ -1,3 +1,4 @@
+
 pluginManagement {
     repositories {
         google {
@@ -19,9 +20,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url = uri("https://jitpack.io") } // Added for MPAndroidChart
     }
 }
 
 rootProject.name = "Konwerter3"
 include(":app")
- 
